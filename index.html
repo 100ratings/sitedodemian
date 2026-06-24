@@ -73,7 +73,7 @@
             <div class="grid-2">
                 <div>
                     <span class="text-gold text-uppercase">A Experiência</span>
-                    <h2 style="font-size: 3rem; margin: 20px 0;">Não é sobre o truque. É sobre a atmosfera.</h2>
+                    <h2 style="font-size: clamp(1.8rem, 5vw, 3rem); margin: 20px 0;">Não é sobre o truque. É sobre a atmosfera.</h2>
                     <p style="margin-bottom: 30px;">Demian Max remove os clichês da mágica tradicional para entregar uma performance sofisticada e intelectualmente estimulante.</p>
                     <ul style="list-style: none; color: var(--color-gold); font-family: var(--font-serif); font-size: 1.2rem;">
                         <li style="margin-bottom: 15px;">— Mágica de proximidade (Close-up)</li>
@@ -83,7 +83,7 @@
                 </div>
                 <div>
                     <!-- Imagem: experiencia-1.jpg -->
-                    <img src="assets/img/gallery/experiencia-1.jpg" alt="A Experiência">
+                    <img src="assets/img/gallery/experiencia-1.jpg" alt="A Experiência" style="border-radius: 2px;">
                 </div>
             </div>
         </div>
@@ -94,7 +94,7 @@
         <div class="container">
             <div style="text-align: center; margin-bottom: 60px;">
                 <span class="text-gold text-uppercase">Formatos</span>
-                <h2 style="font-size: 3rem;">Soluções sob medida.</h2>
+                <h2 style="font-size: clamp(1.8rem, 5vw, 3rem);">Soluções sob medida.</h2>
             </div>
             
             <div class="grid-formats">
@@ -127,18 +127,24 @@
         <div class="container">
             <div style="text-align: center; margin-bottom: 60px;">
                 <span class="text-gold text-uppercase">Autoridade</span>
-                <h2 style="font-size: 3rem;">Presença ao vivo.</h2>
+                <h2 style="font-size: clamp(1.8rem, 5vw, 3rem);">Presença ao vivo.</h2>
             </div>
             
             <div class="grid-2">
-                <div style="cursor: pointer;" onclick="openTVVideo(1)">
-                    <!-- Imagem: midia-1.jpg -->
-                    <img src="assets/img/gallery/midia-1.jpg" alt="TV 1">
+                <!-- Programa 1: https://www.youtube.com/watch?v=Z0FNLVFJ7u8 -->
+                <div class="midia-item" style="cursor: pointer;" onclick="openTVVideo(1)" data-video-id="Z0FNLVFJ7u8">
+                    <div class="midia-thumb-wrap">
+                        <img src="assets/img/gallery/midia-1.jpg" alt="TV Programa 1" class="midia-thumb">
+                        <div class="midia-play-btn" aria-label="Assistir vídeo">&#9654;</div>
+                    </div>
                     <p class="text-uppercase" style="margin-top: 15px; text-align: center;">Participação em TV — Programa 01</p>
                 </div>
-                <div style="cursor: pointer;" onclick="openTVVideo(2)">
-                    <!-- Imagem: midia-2.jpg -->
-                    <img src="assets/img/gallery/midia-2.jpg" alt="TV 2">
+                <!-- Programa 2: https://www.youtube.com/watch?v=_DMpFkXgq84 -->
+                <div class="midia-item" style="cursor: pointer;" onclick="openTVVideo(2)" data-video-id="_DMpFkXgq84">
+                    <div class="midia-thumb-wrap">
+                        <img src="assets/img/gallery/midia-2.jpg" alt="TV Programa 2" class="midia-thumb">
+                        <div class="midia-play-btn" aria-label="Assistir vídeo">&#9654;</div>
+                    </div>
                     <p class="text-uppercase" style="margin-top: 15px; text-align: center;">Participação em TV — Programa 02</p>
                 </div>
             </div>
@@ -150,7 +156,7 @@
         <div class="container">
             <div style="text-align: center; margin-bottom: 60px;">
                 <span class="text-gold text-uppercase">Portfólio</span>
-                <h2 style="font-size: 3rem;">Grandes Marcas.</h2>
+                <h2 style="font-size: clamp(1.8rem, 5vw, 3rem);">Grandes Marcas.</h2>
             </div>
             <div style="background: white; padding: 40px; border-radius: 4px;">
                 <!-- Imagem: clientes-logos.jpg -->
@@ -164,7 +170,7 @@
         <div class="container">
             <div style="text-align: center; margin-bottom: 60px;">
                 <span class="text-gold text-uppercase">Testemunhos</span>
-                <h2 style="font-size: 3rem;">O que dizem.</h2>
+                <h2 style="font-size: clamp(1.8rem, 5vw, 3rem);">O que dizem.</h2>
             </div>
             
             <div class="grid-3">
@@ -190,7 +196,7 @@
     <!-- SOBRE -->
     <section id="sobre" style="background: var(--color-bg-dark);">
         <div class="container">
-            <div class="grid-2">
+            <div class="grid-2 about-grid">
                 <div class="about-visual-container">
                     <!-- Efeito de Fogo (Inject) -->
                     <iframe
@@ -205,7 +211,7 @@
                 </div>
                 <div class="about-text-container">
                     <span class="text-gold text-uppercase">O Artista</span>
-                    <h2 style="font-size: 3rem; margin: 20px 0;">Demian Max</h2>
+                    <h2 style="font-size: clamp(1.8rem, 5vw, 3rem); margin: 20px 0;">Demian Max</h2>
                     <p style="margin-bottom: 20px;">Com 15 anos de estrada, Demian consolidou-se como um dos nomes mais respeitados da mágica de proximidade no Brasil.</p>
                     <blockquote style="font-family: var(--font-serif); font-style: italic; font-size: 1.4rem; color: var(--color-gold); border-left: 3px solid var(--color-gold); padding-left: 20px;">
                         "Mágica, quando bem apresentada, não é uma atração contratada. É uma história que o convidado conta depois."
@@ -221,7 +227,7 @@
             <div class="form-container">
                 <div style="margin-bottom: 40px;">
                     <span class="text-gold text-uppercase">Briefing</span>
-                    <h2 style="font-size: 2.5rem;">Conte sobre o evento.</h2>
+                    <h2 style="font-size: clamp(1.6rem, 4vw, 2.5rem);">Conte sobre o evento.</h2>
                 </div>
                 
                 <form id="briefingForm">

@@ -4,14 +4,17 @@
  */
 
 const WHATSAPP_NUMBER = "5511916684574";
-const VIDEO_TV_1_URL = "https://www.youtube.com/embed/VIDEO_ID_1";
-const VIDEO_TV_2_URL = "https://www.youtube.com/embed/VIDEO_ID_2";
+// Programa 1: https://www.youtube.com/watch?v=Z0FNLVFJ7u8
+// Programa 2: https://www.youtube.com/watch?v=_DMpFkXgq84
+const VIDEO_TV_1_URL = "https://www.youtube.com/watch?v=Z0FNLVFJ7u8";
+const VIDEO_TV_2_URL = "https://www.youtube.com/watch?v=_DMpFkXgq84";
 
 document.addEventListener('DOMContentLoaded', () => {
     initHeader();
     initMobileMenu();
     initBriefingForm();
     initSmoothScroll();
+    initMediaThumbnails();
 });
 
 // HEADER SCROLL
@@ -58,7 +61,6 @@ function initSmoothScroll() {
             if (targetElement) {
                 const header = document.querySelector('.header');
                 const headerHeight = header.offsetHeight;
-                // Adicionamos um respiro extra de 40px para que o título não fique colado no header
                 const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight - 40;
                 
                 window.scrollTo({
@@ -67,6 +69,19 @@ function initSmoothScroll() {
                 });
             }
         });
+    });
+}
+
+// THUMBNAILS DE MÍDIA — substitui imagens estáticas por thumbnails do YouTube com play overlay
+function initMediaThumbnails() {
+    const mediaItems = document.querySelectorAll('[data-video-id]');
+    mediaItems.forEach(item => {
+        const videoId = item.getAttribute('data-video-id');
+        if (!videoId) return;
+        const img = item.querySelector('img');
+        if (img) {
+            img.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+        }
     });
 }
 
@@ -93,9 +108,5 @@ function initBriefingForm() {
 
 function openTVVideo(id) {
     const url = id === 1 ? VIDEO_TV_1_URL : VIDEO_TV_2_URL;
-    if (url.includes('VIDEO_ID')) {
-        alert('Link do vídeo ainda não configurado pela assessoria.');
-        return;
-    }
     window.open(url, '_blank');
 }
