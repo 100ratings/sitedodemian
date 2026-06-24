@@ -95,6 +95,7 @@ section { padding: 100px 0; position: relative; scroll-margin-top: 140px; } /* A
 
 /* GRIDS */
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+/* Removido grid-2-center problemático */
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
 .grid-formats { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
 
@@ -173,19 +174,26 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
 .about-visual-container {
     width: 100%;
     max-width: 478px;
-    margin: 0 auto;
-    aspect-ratio: 478 / 659;
+    margin: 0; 
+    margin-top: 0px; /* AJUSTE IMAGEM: Aumente para descer, use negativo (ex: -20px) para subir */
+    position: relative;
+    /* Mantém a proporção 478x659 */
+    padding-bottom: 137.8%; 
+    height: 0;
     overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+}
+
+.about-text-container {
+    margin-top: -280px; /* AJUSTE TEXTO: Aumente para descer, use negativo (ex: -20px) para subir */
 }
 
 .about-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     border: none;
-    overflow: hidden;
 }
 
 @media (max-width: 991px) {
