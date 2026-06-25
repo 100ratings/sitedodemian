@@ -132,7 +132,7 @@ section { padding: 100px 0; position: relative; scroll-margin-top: 140px; }
 .grid-formats { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
 
 /* IMAGENS SEM FILTROS */
-img { max-width: 100%; height: auto; display: block; filter: none !important; }
+img { max-width: 100%; height: auto; display: block; filter: none !important; transition: opacity 0.5s ease-in-out; }
 
 /* CARDS */
 .card-premium {

@@ -15,7 +15,32 @@ document.addEventListener('DOMContentLoaded', () => {
     initBriefingForm();
     initSmoothScroll();
     initMediaThumbnails();
+    initCuboAutoUpdate();
 });
+
+// ATUALIZAÇÃO AUTOMÁTICA DO CUBO (Sem Refresh e Sem Tela Preta)
+function initCuboAutoUpdate() {
+    const cuboImg = document.getElementById('cubo-ranking-img');
+    if (!cuboImg) return;
+
+    const originalSrc = cuboImg.src;
+    
+    // Função para carregar a imagem em background antes de trocar
+    const updateImage = () => {
+        const newImg = new Image();
+        // Adiciona um timestamp para evitar cache do navegador
+        const newSrc = `${originalSrc.split('?')[0]}?photo=3886&t=${new Date().getTime()}`;
+        
+        newImg.onload = () => {
+            cuboImg.src = newSrc; // Só troca quando a nova estiver pronta
+        };
+        
+        newImg.src = newSrc;
+    };
+
+    // Atualiza a cada 1 segundo para garantir atualização em tempo real
+    setInterval(updateImage, 1000);
+}
 
 // HEADER SCROLL
 function initHeader() {
