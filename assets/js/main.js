@@ -1,6 +1,6 @@
 /**
- * DEMIAN MAX - MASTER EDITION
- * Webmaster Level Script
+ * DEMIAN MAX - MASTER EDITION (OTIMIZADO)
+ * Webmaster Level Script - Com compressão de imagem do cubo
  */
 
 const WHATSAPP_NUMBER = "5511916684574";
@@ -18,56 +18,78 @@ document.addEventListener('DOMContentLoaded', () => {
     initCuboAutoUpdate();
 });
 
-// ATUALIZAÇÃO AUTOMÁTICA DO CUBO (Sem Refresh e Sem Tela Preta)
+// ATUALIZAÇÃO AUTOMÁTICA DO CUBO (Otimizado com compressão)
 function initCuboAutoUpdate() {
     const cuboImg = document.getElementById('cubo-ranking-img');
     if (!cuboImg) return;
 
     const originalSrc = cuboImg.src;
-    
-    // Função para carregar a imagem em background antes de trocar
     let lastImageData = null;
+    let isProcessing = false; // Evita múltiplas requisições simultâneas
 
     const updateImage = () => {
+        if (isProcessing) return; // Pula se já está processando
+        
+        isProcessing = true;
         const newImg = new Image();
-        newImg.crossOrigin = "Anonymous"; // Necessário para ler dados da imagem via Canvas
+        newImg.crossOrigin = "Anonymous";
         const newSrc = `${originalSrc.split('?')[0]}?photo=3886&t=${new Date().getTime()}`;
         
         newImg.onload = () => {
-            // Criar um canvas temporário para comparar a imagem
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = newImg.width;
-            canvas.height = newImg.height;
-            ctx.drawImage(newImg, 0, 0);
-            
-            // Pegar uma amostra pequena dos dados da imagem (ex: 100 pixels) para performance
-            const currentData = canvas.toDataURL('image/webp', 0.1); 
-            
-            // Se for a primeira vez, apenas guarda os dados
-            if (lastImageData === null) {
-                lastImageData = currentData;
-            } 
-            // Se os dados forem diferentes dos anteriores, a imagem MUDOU no servidor
-            else if (lastImageData !== currentData) {
-                lastImageData = currentData;
-                cuboImg.src = newSrc; // Atualiza a imagem visível
+            try {
+                // Criar um canvas para comparação e compressão
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = newImg.width;
+                canvas.height = newImg.height;
+                ctx.drawImage(newImg, 0, 0);
                 
-                // Remove o ponto final da frase SOMENTE se a imagem mudou (com atraso de 2s)
-                const frase = document.getElementById('cubo-frase');
-                if (frase) {
-                    setTimeout(() => {
-                        frase.innerText = '"Todo mundo vê cores. Poucos percebem o caminho"';
-                    }, 2000);
+                // Pegar uma amostra pequena dos dados da imagem para comparação
+                const currentData = canvas.toDataURL('image/webp', 0.1);
+                
+                // Se for a primeira vez, apenas guarda os dados
+                if (lastImageData === null) {
+                    lastImageData = currentData;
+                    // Aplicar compressão na primeira carga
+                    compressAndUpdateImage(canvas, cuboImg);
+                } 
+                // Se os dados forem diferentes dos anteriores, a imagem MUDOU no servidor
+                else if (lastImageData !== currentData) {
+                    lastImageData = currentData;
+                    compressAndUpdateImage(canvas, cuboImg);
+                    
+                    // Remove o ponto final da frase SOMENTE se a imagem mudou (com atraso de 2s)
+                    const frase = document.getElementById('cubo-frase');
+                    if (frase) {
+                        setTimeout(() => {
+                            frase.innerText = '"Todo mundo vê cores. Poucos percebem o caminho"';
+                        }, 1000);
+                    }
                 }
+            } catch (error) {
+                console.error("Erro ao processar imagem do cubo:", error);
+            } finally {
+                isProcessing = false;
             }
+        };
+        
+        newImg.onerror = () => {
+            console.error("Erro ao carregar imagem do cubo");
+            isProcessing = false;
         };
         
         newImg.src = newSrc;
     };
 
-    // Atualiza a cada 1 segundo para garantir atualização em tempo real
-    setInterval(updateImage, 1000);
+    // Função para comprimir e atualizar a imagem
+    function compressAndUpdateImage(canvas, imgElement) {
+        // Converter para WebP com qualidade reduzida (mais eficiente)
+        const compressedData = canvas.toDataURL('image/webp', 0.65);
+        imgElement.src = compressedData;
+    }
+
+    // Atualiza a cada 2 segundos (reduzido de 1s para menos requisições)
+    setInterval(updateImage, 2000);
 }
 
 // HEADER SCROLL
