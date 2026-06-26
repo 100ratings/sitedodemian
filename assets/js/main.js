@@ -53,10 +53,12 @@ function initCuboAutoUpdate() {
                 lastImageData = currentData;
                 cuboImg.src = newSrc; // Atualiza a imagem visível
                 
-                // Remove o ponto final da frase SOMENTE se a imagem mudou
+                // Remove o ponto final da frase SOMENTE se a imagem mudou (com atraso de 2s)
                 const frase = document.getElementById('cubo-frase');
                 if (frase) {
-                    frase.innerText = '"Todo mundo vê cores. Poucos percebem o caminho"';
+                    setTimeout(() => {
+                        frase.innerText = '"Todo mundo vê cores. Poucos percebem o caminho"';
+                    }, 2000);
                 }
             }
         };
@@ -112,7 +114,7 @@ function initSmoothScroll() {
             if (targetElement) {
                 const header = document.querySelector('.header');
                 const headerHeight = header.offsetHeight;
-                const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight - 40;
+                const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight;
                 
                 window.scrollTo({
                     top: targetPosition,
@@ -123,17 +125,10 @@ function initSmoothScroll() {
     });
 }
 
-// THUMBNAILS DE MÍDIA — substitui imagens estáticas por thumbnails do YouTube com play overlay
+// THUMBNAILS DE MÍDIA — usa as imagens locais personalizadas
 function initMediaThumbnails() {
-    const mediaItems = document.querySelectorAll('[data-video-id]');
-    mediaItems.forEach(item => {
-        const videoId = item.getAttribute('data-video-id');
-        if (!videoId) return;
-        const img = item.querySelector('img');
-        if (img) {
-            img.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-        }
-    });
+    // Mantido apenas para garantir a estrutura, mas sem substituir as imagens locais
+    console.log("Media thumbnails initialized with custom local images.");
 }
 
 // BRIEFING FORM
