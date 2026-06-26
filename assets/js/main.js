@@ -6,8 +6,10 @@
 const WHATSAPP_NUMBER = "5511916684574";
 // Programa 1: https://www.youtube.com/watch?v=Z0FNLVFJ7u8
 // Programa 2: https://www.youtube.com/watch?v=_DMpFkXgq84
-const VIDEO_TV_1_URL = "https://www.youtube.com/watch?v=Z0FNLVFJ7u8";
-const VIDEO_TV_2_URL = "https://www.youtube.com/watch?v=_DMpFkXgq84";
+// Programa 3: https://www.youtube.com/watch?v=DjsEQ21bZ-M
+const VIDEO_TV_1_URL = "https://youtu.be/Z0FNLVFJ7u8";
+const VIDEO_TV_2_URL = "https://youtu.be/_DMpFkXgq84?t=21";
+const VIDEO_TV_3_URL = "https://youtu.be/DjsEQ21bZ-M?t=24";
 
 document.addEventListener('DOMContentLoaded', () => {
     initHeader();
@@ -175,6 +177,10 @@ function initBriefingForm() {
 }
 
 function openTVVideo(id) {
-    const url = id === 1 ? VIDEO_TV_1_URL : VIDEO_TV_2_URL;
+    let url;
+    if (id === 1) url = VIDEO_TV_1_URL;
+    else if (id === 2) url = VIDEO_TV_2_URL;
+    else if (id === 3) url = VIDEO_TV_3_URL;
+    
     window.open(url, '_blank');
 }
