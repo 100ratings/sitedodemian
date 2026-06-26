@@ -26,13 +26,39 @@ function initCuboAutoUpdate() {
     const originalSrc = cuboImg.src;
     
     // Função para carregar a imagem em background antes de trocar
+    let lastImageData = null;
+
     const updateImage = () => {
         const newImg = new Image();
-        // Adiciona um timestamp para evitar cache do navegador
+        newImg.crossOrigin = "Anonymous"; // Necessário para ler dados da imagem via Canvas
         const newSrc = `${originalSrc.split('?')[0]}?photo=3886&t=${new Date().getTime()}`;
         
         newImg.onload = () => {
-            cuboImg.src = newSrc; // Só troca quando a nova estiver pronta
+            // Criar um canvas temporário para comparar a imagem
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = newImg.width;
+            canvas.height = newImg.height;
+            ctx.drawImage(newImg, 0, 0);
+            
+            // Pegar uma amostra pequena dos dados da imagem (ex: 100 pixels) para performance
+            const currentData = canvas.toDataURL('image/webp', 0.1); 
+            
+            // Se for a primeira vez, apenas guarda os dados
+            if (lastImageData === null) {
+                lastImageData = currentData;
+            } 
+            // Se os dados forem diferentes dos anteriores, a imagem MUDOU no servidor
+            else if (lastImageData !== currentData) {
+                lastImageData = currentData;
+                cuboImg.src = newSrc; // Atualiza a imagem visível
+                
+                // Remove o ponto final da frase SOMENTE se a imagem mudou
+                const frase = document.getElementById('cubo-frase');
+                if (frase) {
+                    frase.innerText = '"Todo mundo vê cores. Poucos percebem o caminho"';
+                }
+            }
         };
         
         newImg.src = newSrc;
