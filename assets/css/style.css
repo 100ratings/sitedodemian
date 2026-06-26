@@ -165,8 +165,25 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
 .dynamic-reference-wrap { width: 100%; display: flex; justify-content: center; margin-top: 40px; opacity: 0.3; }
 
 /* ============================================
-   SEÇÃO TV & MÍDIA — THUMBNAILS COM PLAY
-   ============================================ */
+	   SEÇÃO TV & MÍDIA — THUMBNAILS COM PLAY
+	   ============================================ */
+.midia-single-center {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.midia-single-center .midia-item {
+    width: calc(50% - 20px); /* Mesmo tamanho dos itens da grid-2 */
+}
+
+@media (max-width: 991px) {
+    .midia-single-center .midia-item {
+        width: 100%;
+    }
+}
+
+
 .midia-item { transition: var(--transition); }
 .midia-item:hover .midia-thumb { opacity: 0.8; }
 .midia-thumb-wrap {
