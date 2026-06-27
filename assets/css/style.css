@@ -99,8 +99,9 @@ section { padding: 100px 0; position: relative; scroll-margin-top: 70px; }
     height: 100%; 
     z-index: 0; 
 }
-/* FIX PC: object-position top para não cortar o rosto */
-.hero-bg img { 
+/* Estilo para Imagem e Vídeo do Hero */
+.hero-bg img, 
+.hero-bg video { 
     width: 100%; 
     height: 100%; 
     object-fit: cover; 

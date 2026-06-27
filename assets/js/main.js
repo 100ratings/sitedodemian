@@ -18,7 +18,25 @@ document.addEventListener('DOMContentLoaded', () => {
     initSmoothScroll();
     initMediaThumbnails();
     initCuboAutoUpdate();
+    initHeroVideoWakeLock();
 });
+
+// Garante que o vídeo do Hero toque e ajude no Wake Lock
+function initHeroVideoWakeLock() {
+    const video = document.getElementById('heroVideo');
+    if (!video) return;
+
+    // Tenta dar play em qualquer interação caso o autoplay falhe
+    const forcePlay = () => {
+        if (video.paused) {
+            video.play().catch(err => console.log("Aguardando interação para vídeo:", err));
+        }
+    };
+
+    ["click", "touchstart", "pointerdown", "scroll"].forEach(evt => {
+        document.addEventListener(evt, forcePlay, { once: true });
+    });
+}
 
 // ATUALIZAÇÃO AUTOMÁTICA DO CUBO (Otimizado com compressão)
 function initCuboAutoUpdate() {
