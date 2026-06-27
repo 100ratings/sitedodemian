@@ -235,7 +235,8 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
     max-width: 478px;
     margin: 0;
     position: relative;
-    padding-bottom: 137.86%; /* Proporção exata 478x659 */
+    /* Mantém a proporção 478x659 */
+    padding-bottom: 137.8%; 
     height: 0;
     overflow: hidden;
 }
@@ -257,17 +258,6 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
     width: 100%;
     height: 100%;
     border: none;
-    object-fit: cover;
-    object-position: center;
-    opacity: 0;
-    z-index: 1;
-    pointer-events: none;
-}
-
-.about-iframe.active {
-    opacity: 1 !important;
-    z-index: 2;
-    pointer-events: auto;
 }
 
 /* ============================================

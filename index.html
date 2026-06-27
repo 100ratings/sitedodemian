@@ -221,21 +221,10 @@
         <div class="container">
             <div class="grid-2 about-grid">
                 <div class="about-visual-container">
-                    <!-- Efeito de Fogo (Double Buffering) -->
-                    <iframe
-                        src="https://11z.co/dmax/demian.png"
-                        class="about-iframe active"
-                        id="iframe-1"
-                        width="478"
-                        height="659"
-                        scrolling="no"
-                        style="border:0;"
-                        frameborder="0"
-                    ></iframe>
+                    <!-- Efeito de Fogo (Inject) -->
                     <iframe
                         src="https://11z.co/dmax/demian.png"
                         class="about-iframe"
-                        id="iframe-2"
                         width="478"
                         height="659"
                         scrolling="no"
@@ -346,5 +335,53 @@
     </footer>
 
     <script src="assets/js/main.js"></script>
+    
+    <!-- WAKE LOCK: Impede que o celular apague a tela -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nosleep/0.12.0/NoSleep.min.js"></script>
+    <script>
+      const noSleep = new NoSleep();
+      let noSleepAtivado = false;
+      
+      function ativarNoSleep() {
+        try {
+          noSleep.enable();
+          noSleepAtivado = true;
+          console.log("✅ Tela mantida ativa");
+        } catch (err) {
+          console.warn("⚠️ Falha ao manter tela ativa:", err);
+        }
+      }
+      
+      function reativarNoSleep() {
+        if (noSleepAtivado) {
+          noSleep.disable();
+          noSleep.enable();
+          console.log("♻️ Tela reativada");
+        }
+      }
+      
+      // Ativa com o primeiro toque/clique/scroll
+      ["click", "touchstart", "pointerdown", "keydown"].forEach(evt => {
+        document.addEventListener(evt, ativarNoSleep, { once: true });
+      });
+      
+      // Reativa se a aba voltar a ficar visível
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+          reativarNoSleep();
+        }
+      });
+      
+      // Monitora se o vídeo do NoSleep parou e reinicia
+      setInterval(() => {
+        if (noSleepAtivado && typeof noSleep._video !== "undefined") {
+          const v = noSleep._video;
+          if (v.paused) {
+            console.log("🔄 Reiniciando proteção da tela");
+            reativarNoSleep();
+          }
+        }
+      }, 10000);
+    </script>
 </body>
 </html>
