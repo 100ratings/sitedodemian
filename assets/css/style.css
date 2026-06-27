@@ -375,6 +375,12 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
     padding: 5px;
 }
 .menu-toggle span { width: 30px; height: 2px; background: var(--color-gold); transition: var(--transition); display: block; }
+/* Sinal Visual de Wake Lock Ativo */
+.menu-toggle.wake-lock-active span:nth-child(3) {
+    width: 22px; /* Encurta a terceira linha */
+    margin-left: auto; /* Alinha à direita para o encurtamento ser na esquerda, ou mantenha default */
+    background: var(--color-gold-light); /* Cor levemente mais viva */
+}
 
 @media (max-width: 991px) {
     .menu-toggle { display: flex; }

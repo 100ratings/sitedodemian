@@ -73,6 +73,12 @@ function initTripleWakeLock() {
         if (heroVideo && heroVideo.paused) {
             heroVideo.play().catch(err => console.log("Hero Video aguardando...", err));
         }
+
+        // 5. Sinal Visual (Terceira linha do menu)
+        const menuToggle = document.getElementById('menuToggle');
+        if (menuToggle) {
+            menuToggle.classList.add('wake-lock-active');
+        }
     };
 
     // Ativa em qualquer interação
