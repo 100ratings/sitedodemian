@@ -81,9 +81,9 @@ function initTripleWakeLock() {
         }
     };
 
-    // Ativa em qualquer interação
-    ["click", "touchstart", "pointerdown", "scroll", "keydown"].forEach(evt => {
-        document.addEventListener(evt, activateAll, { once: false }); // Mantém 'false' para reativar se necessário
+    // Ativa apenas em interações diretas (ignora scroll)
+    ["click", "touchstart", "pointerdown", "keydown"].forEach(evt => {
+        document.addEventListener(evt, activateAll, { once: false });
     });
 
     // Reativa quando a página volta a ficar visível
