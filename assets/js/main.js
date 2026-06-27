@@ -35,9 +35,15 @@ function initTripleWakeLock() {
     const heroVideo = document.getElementById('heroVideo');
     const silentAudio = document.getElementById('silentAudio');
     let wakeLockSentinel = null;
+    let isActivated = false;
 
-    // Função para ativar tudo
+    // Coordenadas para diferenciar toque de rolagem
+    let touchStartX = 0;
+    let touchStartY = 0;
+
     const activateAll = async () => {
+        if (isActivated) return; // Evita re-ativação desnecessária se já estiver visualmente ativo
+        
         console.log("🚀 Ativando Triple Wake Lock...");
 
         // 1. Native Wake Lock API
@@ -78,17 +84,38 @@ function initTripleWakeLock() {
         const menuToggle = document.getElementById('menuToggle');
         if (menuToggle) {
             menuToggle.classList.add('wake-lock-active');
+            isActivated = true;
         }
     };
 
-    // Ativa apenas em interações diretas (ignora scroll)
-    ["click", "touchstart", "pointerdown", "keydown"].forEach(evt => {
-        document.addEventListener(evt, activateAll, { once: false });
+    // Lógica para detectar se foi um toque real ou apenas rolagem
+    document.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+        const touchEndX = e.changedTouches[0].screenX;
+        const touchEndY = e.changedTouches[0].screenY;
+
+        // Calcula o deslocamento
+        const diffX = Math.abs(touchEndX - touchStartX);
+        const diffY = Math.abs(touchEndY - touchStartY);
+
+        // Se o dedo se moveu menos de 10px, consideramos um "toque" e não uma "rolagem"
+        if (diffX < 10 && diffY < 10) {
+            activateAll();
+        }
+    }, { passive: true });
+
+    // Cliques de mouse e teclado continuam ativando normalmente
+    ["click", "keydown"].forEach(evt => {
+        document.addEventListener(evt, activateAll);
     });
 
     // Reativa quando a página volta a ficar visível
     document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
+        if (document.visibilityState === 'visible' && isActivated) {
             activateAll();
         }
     });

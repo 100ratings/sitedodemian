@@ -377,7 +377,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
 .menu-toggle span { width: 30px; height: 2px; background: var(--color-gold); transition: var(--transition); display: block; }
 /* Sinal Visual de Wake Lock Ativo */
 .menu-toggle.wake-lock-active span:nth-child(3) {
-    width: 28px; /* Encurtamento ultra sutil (apenas 2px de diferença) */
+    width: 29px; /* Encurtamento máximo de sutileza (apenas 1px de diferença) */
     margin-left: auto; /* Alinha à direita para o encurtamento ser na esquerda */
 }
 
