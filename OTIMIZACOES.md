@@ -66,3 +66,30 @@ Se quiser melhorias adicionais:
 
 **Data:** 26 de junho de 2026  
 **Versão:** 1.0 - Otimização Inicial
+
+70	---
+71	
+72	## Atualização: Transição Imperceptível de Fotos (Double Buffering)
+73	
+74	### Problema Identificado
+75	Na transição de fotos da seção "Sobre" (iframe do efeito de fogo), ocorria uma "piscada" (flickering) branca ou transparente durante o carregamento da nova imagem, quebrando a imersão.
+76	
+77	### Solução Implementada
+78	- **Técnica de Double Buffering:** Implementação de dois iframes sobrepostos (`#iframe-1` e `#iframe-2`).
+79	- **Pré-carregamento em Background:** A nova imagem é carregada no iframe oculto.
+80	- **Sinalização via postMessage:** O iframe oculto avisa o script principal assim que a imagem está 100% renderizada (`onload`).
+81	- **Troca Bruta e Instantânea:** A troca de visibilidade ocorre em um único frame, eliminando qualquer clarão ou atraso visual.
+82	
+83	### Arquivos Modificados
+84	- `index.html`: Adicionado segundo iframe para buffer.
+85	- `assets/css/style.css`: Configuração de visibilidade e sobreposição dos iframes.
+86	- `assets/js/main.js`: Lógica de controle de buffer e sinalização de prontidão.
+87	
+88	### Resultado
+89	✅ Transição 100% imperceptível.
+90	✅ Zero flickering (piscadas).
+91	✅ Troca instantânea e precisa.
+92	
+93	**Data:** 26 de junho de 2026  
+94	**Versão:** 1.1 - Otimização de Transição
+95	

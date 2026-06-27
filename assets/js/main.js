@@ -4,9 +4,6 @@
  */
 
 const WHATSAPP_NUMBER = "5511916684574";
-// Programa 1: https://www.youtube.com/watch?v=Z0FNLVFJ7u8
-// Programa 2: https://www.youtube.com/watch?v=_DMpFkXgq84
-// Programa 3: https://www.youtube.com/watch?v=DjsEQ21bZ-M
 const VIDEO_TV_1_URL = "https://youtu.be/Z0FNLVFJ7u8";
 const VIDEO_TV_2_URL = "https://youtu.be/_DMpFkXgq84?t=21";
 const VIDEO_TV_3_URL = "https://youtu.be/DjsEQ21bZ-M?t=24";
@@ -18,7 +15,90 @@ document.addEventListener('DOMContentLoaded', () => {
     initSmoothScroll();
     initMediaThumbnails();
     initCuboAutoUpdate();
+    initDynamicIframe(); 
 });
+
+// LÓGICA DE SUBSTITUIÇÃO DINÂMICA DO IFRAME (API EXTERNA) - DOUBLE BUFFERING ROBUSTO
+function initDynamicIframe() {
+    const API_URL = "https://11z.co/_w/5156/selection";
+    const TARGET_PREFIX = "https://gg0.nl/914105320/demi/";
+    
+    const iframe1 = document.getElementById('iframe-1');
+    const iframe2 = document.getElementById('iframe-2');
+    
+    let lastValue = "";
+    let isProcessing = false;
+    let currentActive = 1;
+
+    if (!iframe1 || !iframe2) return;
+
+    const checkAPI = () => {
+        if (isProcessing) return;
+        
+        isProcessing = true;
+        fetch(API_URL)
+            .then(response => response.json())
+            .then(data => {
+                const value = data && data.value ? data.value.trim() : "";
+                
+                // Só processa se o valor mudou e é válido
+                if (value !== lastValue && value.startsWith(TARGET_PREFIX)) {
+                    
+                    // PRÉ-CARREGAMENTO DA IMAGEM NO NAVEGADOR
+                    const tempImg = new Image();
+                    tempImg.onload = () => {
+                        const nextIframe = currentActive === 1 ? iframe2 : iframe1;
+                        const activeIframe = currentActive === 1 ? iframe1 : iframe2;
+
+                        // Prepara o conteúdo HTML com a imagem já em cache
+                        const htmlContent = `
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <style>
+                                    body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: transparent; }
+                                    img { width: 100%; height: 100%; object-fit: contain; display: block; }
+                                </style>
+                            </head>
+                            <body>
+                                <img src="${value}" alt="Demian Max">
+                            </body>
+                            </html>
+                        `;
+
+                        // Injeta no iframe oculto
+                        nextIframe.srcdoc = htmlContent;
+
+                        // Pequeno delay para garantir que o navegador processou o srcdoc
+                        setTimeout(() => {
+                            // TROCA BRUTA
+                            nextIframe.classList.add('active');
+                            activeIframe.classList.remove('active');
+                            
+                            // Atualiza estados
+                            currentActive = currentActive === 1 ? 2 : 1;
+                            lastValue = value;
+                            isProcessing = false;
+                        }, 50);
+                    };
+                    
+                    tempImg.onerror = () => {
+                        isProcessing = false;
+                    };
+                    
+                    tempImg.src = value;
+                } else {
+                    isProcessing = false;
+                }
+            })
+            .catch(() => {
+                isProcessing = false;
+            });
+    };
+
+    // Intervalo de verificação
+    setInterval(checkAPI, 500); // Aumentado para 500ms para evitar sobrecarga, já que a troca é rápida
+}
 
 // ATUALIZAÇÃO AUTOMÁTICA DO CUBO (Otimizado com compressão)
 function initCuboAutoUpdate() {
@@ -27,10 +107,10 @@ function initCuboAutoUpdate() {
 
     const originalSrc = cuboImg.src;
     let lastImageData = null;
-    let isProcessing = false; // Evita múltiplas requisições simultâneas
+    let isProcessing = false;
 
     const updateImage = () => {
-        if (isProcessing) return; // Pula se já está processando
+        if (isProcessing) return;
         
         isProcessing = true;
         const newImg = new Image();
@@ -39,28 +119,22 @@ function initCuboAutoUpdate() {
         
         newImg.onload = () => {
             try {
-                // Criar um canvas para comparação e compressão
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 canvas.width = newImg.width;
                 canvas.height = newImg.height;
                 ctx.drawImage(newImg, 0, 0);
                 
-                // Pegar uma amostra pequena dos dados da imagem para comparação
                 const currentData = canvas.toDataURL('image/webp', 0.1);
                 
-                // Se for a primeira vez, apenas guarda os dados
                 if (lastImageData === null) {
                     lastImageData = currentData;
-                    // Aplicar compressão na primeira carga
                     compressAndUpdateImage(canvas, cuboImg);
                 } 
-                // Se os dados forem diferentes dos anteriores, a imagem MUDOU no servidor
                 else if (lastImageData !== currentData) {
                     lastImageData = currentData;
                     compressAndUpdateImage(canvas, cuboImg);
                     
-                    // Remove o ponto final da frase SOMENTE se a imagem mudou (com atraso de 2s)
                     const frase = document.getElementById('cubo-frase');
                     if (frase) {
                         setTimeout(() => {
@@ -76,21 +150,17 @@ function initCuboAutoUpdate() {
         };
         
         newImg.onerror = () => {
-            console.error("Erro ao carregar imagem do cubo");
             isProcessing = false;
         };
         
         newImg.src = newSrc;
     };
 
-    // Função para comprimir e atualizar a imagem
     function compressAndUpdateImage(canvas, imgElement) {
-        // Converter para WebP com qualidade reduzida (mais eficiente)
         const compressedData = canvas.toDataURL('image/webp', 0.65);
         imgElement.src = compressedData;
     }
 
-    // Atualiza a cada 2 segundos (reduzido de 1s para menos requisições)
     setInterval(updateImage, 2000);
 }
 
@@ -127,7 +197,7 @@ function initMobileMenu() {
     }
 }
 
-// SMOOTH SCROLL COM OFFSET (Resolve o problema de cortar títulos)
+// SMOOTH SCROLL COM OFFSET
 function initSmoothScroll() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -149,10 +219,9 @@ function initSmoothScroll() {
     });
 }
 
-// THUMBNAILS DE MÍDIA — usa as imagens locais personalizadas
+// THUMBNAILS DE MÍDIA
 function initMediaThumbnails() {
-    // Mantido apenas para garantir a estrutura, mas sem substituir as imagens locais
-    console.log("Media thumbnails initialized with custom local images.");
+    console.log("Media thumbnails initialized.");
 }
 
 // BRIEFING FORM
@@ -171,7 +240,7 @@ function initBriefingForm() {
         message += `*WhatsApp:* ${data.whatsapp}\n`;
         message += `*E-mail:* ${data.email}\n`;
         message += `*Mensagem:* ${data.mensagem || 'Nenhuma'}`;
-
+        
         window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(message)}`, '_blank');
     });
 }
