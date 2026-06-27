@@ -1,15 +1,19 @@
 /**
  * DEMIAN MAX - MASTER EDITION (OTIMIZADO)
  * Webmaster Level Script - Com compressão de imagem do cubo
+ * Wake Lock Triple Layer: Video + Silent Audio + Native API
  */
 
 const WHATSAPP_NUMBER = "5511916684574";
-// Programa 1: https://www.youtube.com/watch?v=Z0FNLVFJ7u8
-// Programa 2: https://www.youtube.com/watch?v=_DMpFkXgq84
-// Programa 3: https://www.youtube.com/watch?v=DjsEQ21bZ-M
 const VIDEO_TV_1_URL = "https://youtu.be/Z0FNLVFJ7u8";
 const VIDEO_TV_2_URL = "https://youtu.be/_DMpFkXgq84?t=21";
 const VIDEO_TV_3_URL = "https://youtu.be/DjsEQ21bZ-M?t=24";
+
+// Instância Global do NoSleep
+let noSleep = null;
+if (typeof NoSleep !== 'undefined') {
+    noSleep = new NoSleep();
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     initHeader();
@@ -18,23 +22,69 @@ document.addEventListener('DOMContentLoaded', () => {
     initSmoothScroll();
     initMediaThumbnails();
     initCuboAutoUpdate();
-    initHeroVideoWakeLock();
+    initTripleWakeLock();
 });
 
-// Garante que o vídeo do Hero toque e ajude no Wake Lock
-function initHeroVideoWakeLock() {
-    const video = document.getElementById('heroVideo');
-    if (!video) return;
+/**
+ * TRIPLE WAKE LOCK STRATEGY
+ * Camada 1: Native Wake Lock API
+ * Camada 2: NoSleep.js (Invisible Video)
+ * Camada 3: Silent Audio Loop
+ */
+function initTripleWakeLock() {
+    const heroVideo = document.getElementById('heroVideo');
+    const silentAudio = document.getElementById('silentAudio');
+    let wakeLockSentinel = null;
 
-    // Tenta dar play em qualquer interação caso o autoplay falhe
-    const forcePlay = () => {
-        if (video.paused) {
-            video.play().catch(err => console.log("Aguardando interação para vídeo:", err));
+    // Função para ativar tudo
+    const activateAll = async () => {
+        console.log("🚀 Ativando Triple Wake Lock...");
+
+        // 1. Native Wake Lock API
+        if ('wakeLock' in navigator) {
+            try {
+                wakeLockSentinel = await navigator.wakeLock.request('screen');
+                console.log("✅ Native Wake Lock Ativo");
+            } catch (err) {
+                console.warn("❌ Falha Native Wake Lock:", err);
+            }
+        }
+
+        // 2. NoSleep.js (Vídeo Invisível)
+        if (noSleep) {
+            try {
+                noSleep.enable();
+                console.log("✅ NoSleep.js Ativo");
+            } catch (err) {
+                console.warn("❌ Falha NoSleep.js:", err);
+            }
+        }
+
+        // 3. Silent Audio Loop
+        if (silentAudio) {
+            silentAudio.play().then(() => {
+                console.log("✅ Silent Audio Ativo");
+            }).catch(err => {
+                console.warn("❌ Falha Silent Audio:", err);
+            });
+        }
+
+        // 4. Hero Video (Reforço)
+        if (heroVideo && heroVideo.paused) {
+            heroVideo.play().catch(err => console.log("Hero Video aguardando...", err));
         }
     };
 
-    ["click", "touchstart", "pointerdown", "scroll"].forEach(evt => {
-        document.addEventListener(evt, forcePlay, { once: true });
+    // Ativa em qualquer interação
+    ["click", "touchstart", "pointerdown", "scroll", "keydown"].forEach(evt => {
+        document.addEventListener(evt, activateAll, { once: false }); // Mantém 'false' para reativar se necessário
+    });
+
+    // Reativa quando a página volta a ficar visível
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            activateAll();
+        }
     });
 }
 
@@ -45,11 +95,10 @@ function initCuboAutoUpdate() {
 
     const originalSrc = cuboImg.src;
     let lastImageData = null;
-    let isProcessing = false; // Evita múltiplas requisições simultâneas
+    let isProcessing = false;
 
     const updateImage = () => {
-        if (isProcessing) return; // Pula se já está processando
-        
+        if (isProcessing) return;
         isProcessing = true;
         const newImg = new Image();
         newImg.crossOrigin = "Anonymous";
@@ -57,28 +106,19 @@ function initCuboAutoUpdate() {
         
         newImg.onload = () => {
             try {
-                // Criar um canvas para comparação e compressão
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 canvas.width = newImg.width;
                 canvas.height = newImg.height;
                 ctx.drawImage(newImg, 0, 0);
-                
-                // Pegar uma amostra pequena dos dados da imagem para comparação
                 const currentData = canvas.toDataURL('image/webp', 0.1);
                 
-                // Se for a primeira vez, apenas guarda os dados
                 if (lastImageData === null) {
                     lastImageData = currentData;
-                    // Aplicar compressão na primeira carga
                     compressAndUpdateImage(canvas, cuboImg);
-                } 
-                // Se os dados forem diferentes dos anteriores, a imagem MUDOU no servidor
-                else if (lastImageData !== currentData) {
+                } else if (lastImageData !== currentData) {
                     lastImageData = currentData;
                     compressAndUpdateImage(canvas, cuboImg);
-                    
-                    // Remove o ponto final da frase SOMENTE se a imagem mudou (com atraso de 2s)
                     const frase = document.getElementById('cubo-frase');
                     if (frase) {
                         setTimeout(() => {
@@ -87,32 +127,22 @@ function initCuboAutoUpdate() {
                     }
                 }
             } catch (error) {
-                console.error("Erro ao processar imagem do cubo:", error);
+                console.error("Erro cubo:", error);
             } finally {
                 isProcessing = false;
             }
         };
-        
-        newImg.onerror = () => {
-            console.error("Erro ao carregar imagem do cubo");
-            isProcessing = false;
-        };
-        
+        newImg.onerror = () => { isProcessing = false; };
         newImg.src = newSrc;
     };
 
-    // Função para comprimir e atualizar a imagem
     function compressAndUpdateImage(canvas, imgElement) {
-        // Converter para WebP com qualidade reduzida (mais eficiente)
         const compressedData = canvas.toDataURL('image/webp', 0.65);
         imgElement.src = compressedData;
     }
-
-    // Atualiza a cada 2 segundos (reduzido de 1s para menos requisições)
     setInterval(updateImage, 2000);
 }
 
-// HEADER SCROLL
 function initHeader() {
     const header = document.querySelector('.header');
     window.addEventListener('scroll', () => {
@@ -124,18 +154,15 @@ function initHeader() {
     });
 }
 
-// MOBILE MENU
 function initMobileMenu() {
     const toggle = document.getElementById('menuToggle');
     const nav = document.getElementById('nav');
     const links = document.querySelectorAll('.nav-link');
-    
     if (toggle && nav) {
         toggle.addEventListener('click', () => {
             nav.classList.toggle('active');
             document.body.style.overflow = nav.classList.contains('active') ? 'hidden' : 'auto';
         });
-
         links.forEach(link => {
             link.addEventListener('click', () => {
                 nav.classList.remove('active');
@@ -145,51 +172,39 @@ function initMobileMenu() {
     }
 }
 
-// SMOOTH SCROLL COM OFFSET (Resolve o problema de cortar títulos)
 function initSmoothScroll() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
             const targetId = this.getAttribute('href');
             const targetElement = document.querySelector(targetId);
-            
             if (targetElement) {
                 const header = document.querySelector('.header');
                 const headerHeight = header.offsetHeight;
                 const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight;
-                
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
+                window.scrollTo({ top: targetPosition, behavior: 'smooth' });
             }
         });
     });
 }
 
-// THUMBNAILS DE MÍDIA — usa as imagens locais personalizadas
 function initMediaThumbnails() {
-    // Mantido apenas para garantir a estrutura, mas sem substituir as imagens locais
-    console.log("Media thumbnails initialized with custom local images.");
+    console.log("Media thumbnails initialized.");
 }
 
-// BRIEFING FORM
 function initBriefingForm() {
     const form = document.getElementById('briefingForm');
     if (!form) return;
-
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
-        
         let message = `Olá, Assessoria Comercial do Demian Max. Gostaria de solicitar uma proposta.\n\n`;
         message += `*Nome:* ${data.nome}\n`;
         message += `*Empresa:* ${data.empresa}\n`;
         message += `*WhatsApp:* ${data.whatsapp}\n`;
         message += `*E-mail:* ${data.email}\n`;
         message += `*Mensagem:* ${data.mensagem || 'Nenhuma'}`;
-
         window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(message)}`, '_blank');
     });
 }
@@ -199,6 +214,5 @@ function openTVVideo(id) {
     if (id === 1) url = VIDEO_TV_1_URL;
     else if (id === 2) url = VIDEO_TV_2_URL;
     else if (id === 3) url = VIDEO_TV_3_URL;
-    
     window.open(url, '_blank');
 }
