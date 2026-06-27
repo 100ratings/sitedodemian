@@ -8,6 +8,7 @@ const WHATSAPP_NUMBER = "5511916684574";
 const VIDEO_TV_1_URL = "https://youtu.be/Z0FNLVFJ7u8";
 const VIDEO_TV_2_URL = "https://youtu.be/_DMpFkXgq84?t=21";
 const VIDEO_TV_3_URL = "https://youtu.be/DjsEQ21bZ-M?t=24";
+const INJECT_API_URL = "https://11z.co/_w/5156/selection";
 
 // Instância Global do NoSleep
 let noSleep = null;
@@ -22,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSmoothScroll();
     initMediaThumbnails();
     initCuboAutoUpdate();
+    initCardAutoUpdate();
     initTripleWakeLock();
 });
 
@@ -174,6 +176,54 @@ function initCuboAutoUpdate() {
         imgElement.src = compressedData;
     }
     setInterval(updateImage, 2000);
+}
+
+/**
+ * ATUALIZAÇÃO DINÂMICA DA CARTA (INJECT API)
+ * Monitora a API do Inject e troca a imagem local da carta
+ */
+function initCardAutoUpdate() {
+    const cardImg = document.getElementById('card-image');
+    if (!cardImg) return;
+
+    let lastValue = null;
+    let isProcessing = false;
+
+    const checkAPI = async () => {
+        if (isProcessing) return;
+        isProcessing = true;
+
+        try {
+            const response = await fetch(`${INJECT_API_URL}?t=${new Date().getTime()}`);
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const data = await response.json();
+            const value = data.value;
+
+            // Só atualiza se o valor for diferente do último e contiver ".jpg"
+            if (value !== lastValue) {
+                lastValue = value;
+                
+                if (value && typeof value === 'string' && value.toLowerCase().endsWith('.jpg')) {
+                    // Extrai o nome do arquivo da URL (ex: "3h.jpg")
+                    const fileName = value.split('/').pop();
+                    cardImg.src = `demian/${fileName}`;
+                    console.log(`🃏 Carta atualizada: ${fileName}`);
+                } else {
+                    // Se não for .jpg, volta para a thumb padrão
+                    cardImg.src = 'demian/thumb.jpg';
+                    console.log("🃏 Voltando para thumb padrão");
+                }
+            }
+        } catch (error) {
+            console.warn("⚠️ Falha ao consultar API Inject:", error);
+        } finally {
+            isProcessing = false;
+        }
+    };
+
+    // Consulta a cada 800ms para um efeito de mágica instantâneo e seguro
+    setInterval(checkAPI, 800);
 }
 
 function initHeader() {
