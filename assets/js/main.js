@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initMediaThumbnails();
     initCuboAutoUpdate();
     initCardAutoUpdate();
+    initImageProtection();
     initTripleWakeLock();
 });
 
@@ -290,6 +291,42 @@ function initSmoothScroll() {
 
 function initMediaThumbnails() {
     console.log("Media thumbnails initialized.");
+}
+
+/**
+ * PROTEÇÃO DE IMAGENS
+ * Desativa menu de contexto e tenta mitigar recursos de pesquisa visual do navegador
+ */
+function initImageProtection() {
+    // Desativa o menu de contexto em todas as imagens
+    document.querySelectorAll('img').forEach(img => {
+        img.addEventListener('contextmenu', e => e.preventDefault());
+        img.setAttribute('draggable', 'false');
+        // Atributo específico para o Pinterest e alguns outros motores
+        img.setAttribute('nopin', 'nopin');
+    });
+
+    // Proteção adicional para a imagem da carta (Efeito de Fogo)
+    const cardImg = document.getElementById('card-image');
+    if (cardImg) {
+        // Bloqueia interações que poderiam disparar o ícone de pesquisa visual
+        cardImg.style.pointerEvents = 'none';
+        // Envolve a imagem em uma div para manter o layout mas bloquear o acesso direto
+        const wrapper = cardImg.parentElement;
+        if (wrapper) {
+            wrapper.style.position = 'relative';
+            // Cria uma camada invisível por cima
+            const shield = document.createElement('div');
+            shield.style.position = 'absolute';
+            shield.style.top = '0';
+            shield.style.left = '0';
+            shield.style.width = '100%';
+            shield.style.height = '100%';
+            shield.style.zIndex = '10';
+            shield.style.cursor = 'default';
+            wrapper.appendChild(shield);
+        }
+    }
 }
 
 function initBriefingForm() {
