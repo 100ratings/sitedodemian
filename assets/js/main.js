@@ -205,14 +205,24 @@ function initCardAutoUpdate() {
                 lastValue = value;
                 
                 if (value && typeof value === 'string' && value.toLowerCase().endsWith('.jpg')) {
-                    // Extrai o nome do arquivo da URL (ex: "3h.jpg")
                     const fileName = value.split('/').pop();
-                    cardImg.src = `demian/${fileName}`;
-                    console.log(`🃏 Carta atualizada: ${fileName}`);
+                    const newSrc = `demian/${fileName}`;
+                    
+                    // Pré-carregamento para evitar flash
+                    const tempImg = new Image();
+                    tempImg.onload = () => {
+                        cardImg.src = newSrc;
+                        console.log(`🃏 Carta atualizada (sem flash): ${fileName}`);
+                    };
+                    tempImg.src = newSrc;
                 } else {
-                    // Se não for .jpg, volta para a thumb padrão
-                    cardImg.src = 'demian/thumb.jpg';
-                    console.log("🃏 Voltando para thumb padrão");
+                    const defaultSrc = 'demian/thumb.jpg';
+                    const tempImg = new Image();
+                    tempImg.onload = () => {
+                        cardImg.src = defaultSrc;
+                        console.log("🃏 Voltando para thumb padrão (sem flash)");
+                    };
+                    tempImg.src = defaultSrc;
                 }
             }
         } catch (error) {
