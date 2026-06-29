@@ -84,7 +84,8 @@ section { padding: 100px 0; position: relative; scroll-margin-top: 70px; }
 
 /* HERO */
 .hero { 
-    height: 100vh; 
+    height: 100vh; /* Fallback */
+    height: calc(var(--vh, 1vh) * 100);
     min-height: 600px;
     display: flex; 
     align-items: center; 
@@ -301,7 +302,8 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
 
     /* HERO mobile */
     .hero { 
-        height: 100svh;
+        height: 100vh; /* Fallback */
+        height: calc(var(--vh, 1vh) * 100);
         min-height: 500px;
         align-items: flex-end;
     }

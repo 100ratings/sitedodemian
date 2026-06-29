@@ -17,6 +17,7 @@ if (typeof NoSleep !== 'undefined') {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    fixViewportHeight();
     initHeader();
     initMobileMenu();
     initBriefingForm();
@@ -27,6 +28,34 @@ document.addEventListener('DOMContentLoaded', () => {
     initImageProtection();
     initTripleWakeLock();
 });
+
+/**
+ * FIX VIEWPORT HEIGHT
+ * Resolve o bug de "pulo" no scroll mobile causado pela barra de endereços
+ * que altera o valor de 100vh/100svh dinamicamente.
+ */
+function fixViewportHeight() {
+    const fixHeight = () => {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+        
+        // Trava a altura do Hero para evitar saltos durante o scroll
+        const hero = document.getElementById('inicio');
+        if (hero) {
+            hero.style.height = `${window.innerHeight}px`;
+        }
+    };
+
+    fixHeight();
+    // Atualiza apenas se a largura mudar (rotação de tela), não no scroll
+    let lastWidth = window.innerWidth;
+    window.addEventListener('resize', () => {
+        if (window.innerWidth !== lastWidth) {
+            lastWidth = window.innerWidth;
+            fixHeight();
+        }
+    });
+}
 
 /**
  * TRIPLE WAKE LOCK STRATEGY
@@ -105,8 +134,9 @@ function initTripleWakeLock() {
         const diffX = Math.abs(touchEndX - touchStartX);
         const diffY = Math.abs(touchEndY - touchStartY);
 
-        // Se o dedo se moveu menos de 10px, consideramos um "toque" e não uma "rolagem"
-        if (diffX < 10 && diffY < 10) {
+        // Se o dedo se moveu menos de 5px, consideramos um "toque" intencional
+        // Aumentamos a precisão para evitar ativações durante micro-ajustes de scroll
+        if (diffX < 5 && diffY < 5) {
             activateAll();
         }
     }, { passive: true });
