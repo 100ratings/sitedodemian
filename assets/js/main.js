@@ -35,21 +35,30 @@ document.addEventListener('DOMContentLoaded', () => {
  * que altera o valor de 100vh/100svh dinamicamente.
  */
 function fixViewportHeight() {
-    // Esta função foi simplificada para evitar saltos no mobile.
-    // Unidades modernas de CSS (svh) agora cuidam da altura do Hero.
+    // FIX MOBILE SCROLL JUMP: atualiza --vh apenas em mudanças de orientação (não ao aparecer/sumir a barra de endereços)
+    // A barra de endereços muda innerHeight mas NÃO innerWidth nem screen.orientation
+    // Usar visualViewport API quando disponível para maior precisão
     const fixHeight = () => {
         const vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty('--vh', `${vh}px`);
     };
 
     fixHeight();
-    let lastWidth = window.innerWidth;
-    window.addEventListener('resize', () => {
-        if (window.innerWidth !== lastWidth) {
-            lastWidth = window.innerWidth;
-            fixHeight();
-        }
-    });
+
+    // Reagir apenas a mudanças de orientação (landscape <-> portrait)
+    // Isso evita que a barra de endereços disparando resize cause reflow
+    if (window.screen && window.screen.orientation) {
+        window.screen.orientation.addEventListener('change', fixHeight);
+    } else {
+        // Fallback: só atualiza se a largura mudar (orientação)
+        let lastWidth = window.innerWidth;
+        window.addEventListener('resize', () => {
+            if (window.innerWidth !== lastWidth) {
+                lastWidth = window.innerWidth;
+                fixHeight();
+            }
+        }, { passive: true });
+    }
 }
 
 /**
@@ -116,6 +125,9 @@ function initTripleWakeLock() {
     };
 
     // Lógica para detectar se foi um toque real ou apenas rolagem
+    // FIX MOBILE SCROLL JUMP: ambos os listeners já têm { passive: true } (correto)
+    // passive: true informa ao browser que não vamos chamar preventDefault()
+    // permitindo que o scroll seja processado imediatamente sem esperar o JS
     document.addEventListener('touchstart', (e) => {
         touchStartX = e.changedTouches[0].screenX;
         touchStartY = e.changedTouches[0].screenY;
@@ -264,13 +276,15 @@ function initCardAutoUpdate() {
 
 function initHeader() {
     const header = document.querySelector('.header');
+    // FIX MOBILE SCROLL JUMP: { passive: true } libera o thread principal durante o scroll
+    // sem isso, o browser espera o JS terminar antes de rolar, causando o puxão
     window.addEventListener('scroll', () => {
         if (window.scrollY > 50) {
             header.classList.add('scrolled');
         } else {
             header.classList.remove('scrolled');
         }
-    });
+    }, { passive: true });
 }
 
 function initMobileMenu() {

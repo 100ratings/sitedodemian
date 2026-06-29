@@ -21,8 +21,24 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { font-size: 16px; }
-body { background-color: var(--color-bg-deep); color: var(--color-off-white); font-family: var(--font-sans); line-height: 1.6; overflow-x: hidden; }
+html {
+    font-size: 16px;
+    /* FIX MOBILE SCROLL JUMP: evita o rubber-band/overscroll que causa puxão */
+    overscroll-behavior: none;
+}
+body {
+    background-color: var(--color-bg-deep);
+    color: var(--color-off-white);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    overflow-x: hidden;
+    /* FIX MOBILE SCROLL JUMP: scroll suave nativo no iOS e desativa overscroll */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: none;
+    /* Informa ao browser que apenas scroll vertical será usado
+       Isso permite que o browser otimize o scroll sem esperar o JS */
+    touch-action: pan-y;
+}
 
 /* TIPOGRAFIA */
 h1, h2, h3, h4 { font-family: var(--font-serif); color: var(--color-off-white); line-height: 1.2; }
@@ -92,6 +108,10 @@ section { padding: 100px 0; position: relative; scroll-margin-top: 70px; }
     padding: 0; 
     position: relative;
     overflow: hidden;
+    /* FIX MOBILE SCROLL JUMP: isola o hero em seu próprio layer de compositing */
+    /* Isso evita que mudanças no hero causem repaint/reflow no restante da página */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
 }
 .hero-bg { 
     position: absolute; 
@@ -302,7 +322,11 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
 
     /* HERO mobile */
     .hero { 
-        height: 100vh;
+        /* FIX MOBILE SCROLL JUMP: usar apenas 100svh no mobile
+           100svh = Small Viewport Height = altura com barra de endereços VISIVEL
+           Isso é ESTAVEL - não muda quando a barra aparece/some
+           Removemos 100vh pois no iOS Safari 100vh = large viewport (sem barra)
+           o que causava o puxão ao a barra aparecer/sumir */
         height: 100svh;
         min-height: 500px;
         align-items: flex-end;
