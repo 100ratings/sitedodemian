@@ -322,13 +322,10 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
 
     /* HERO mobile */
     .hero { 
-        /* FIX MOBILE SCROLL JUMP: usar apenas 100svh no mobile
-           100svh = Small Viewport Height = altura com barra de endereços VISIVEL
-           Isso é ESTAVEL - não muda quando a barra aparece/some
-           Removemos 100vh pois no iOS Safari 100vh = large viewport (sem barra)
-           o que causava o puxão ao a barra aparecer/sumir */
-        height: 100svh;
+        /* FIX MOBILE SCROLL JUMP: Usamos min-height para garantir visibilidade 
+           enquanto o JS não carrega. O JS travará a altura exata em pixels. */
         min-height: 500px;
+        height: 100svh;
         align-items: flex-end;
     }
     .hero-content {

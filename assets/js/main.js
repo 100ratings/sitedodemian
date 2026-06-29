@@ -35,30 +35,32 @@ document.addEventListener('DOMContentLoaded', () => {
  * que altera o valor de 100vh/100svh dinamicamente.
  */
 function fixViewportHeight() {
-    // FIX MOBILE SCROLL JUMP: atualiza --vh apenas em mudanças de orientação (não ao aparecer/sumir a barra de endereços)
-    // A barra de endereços muda innerHeight mas NÃO innerWidth nem screen.orientation
-    // Usar visualViewport API quando disponível para maior precisão
-    const fixHeight = () => {
-        const vh = window.innerHeight * 0.01;
-        document.documentElement.style.setProperty('--vh', `${vh}px`);
+    // FIX MOBILE SCROLL JUMP (SOLUÇÃO DEFINITIVA):
+    // Trava a altura do Hero no carregamento para evitar o "puxão" quando a barra de endereços some.
+    const hero = document.querySelector('.hero');
+    
+    const lockHeroHeight = () => {
+        if (window.innerWidth < 768 && hero) {
+            // No mobile, travamos a altura em pixels fixos baseados no innerHeight inicial
+            hero.style.height = window.innerHeight + 'px';
+        } else if (hero) {
+            // No desktop, voltamos para o padrão
+            hero.style.height = '';
+        }
     };
 
-    fixHeight();
+    // Executa no load
+    lockHeroHeight();
 
-    // Reagir apenas a mudanças de orientação (landscape <-> portrait)
-    // Isso evita que a barra de endereços disparando resize cause reflow
-    if (window.screen && window.screen.orientation) {
-        window.screen.orientation.addEventListener('change', fixHeight);
-    } else {
-        // Fallback: só atualiza se a largura mudar (orientação)
-        let lastWidth = window.innerWidth;
-        window.addEventListener('resize', () => {
-            if (window.innerWidth !== lastWidth) {
-                lastWidth = window.innerWidth;
-                fixHeight();
-            }
-        }, { passive: true });
-    }
+    // Apenas recalcula se a orientação mudar (celular girar)
+    // Isso impede o "puxão" durante o scroll vertical comum
+    let lastWidth = window.innerWidth;
+    window.addEventListener('resize', () => {
+        if (window.innerWidth !== lastWidth) {
+            lastWidth = window.innerWidth;
+            lockHeroHeight();
+        }
+    }, { passive: true });
 }
 
 /**
@@ -95,7 +97,29 @@ function initTripleWakeLock() {
         // 2. NoSleep.js (Vídeo Invisível)
         if (noSleep) {
             try {
+                // FIX: Antes de ativar o NoSleep, travamos a posição do scroll
+                // para evitar que a injeção do vídeo cause um "salto" ou "puxão"
+                const scrollPos = window.scrollY;
                 noSleep.enable();
+                
+                // Garante que o vídeo injetado pelo NoSleep não roube o foco ou cause layout shift
+                setTimeout(() => {
+                    const nsVideo = document.querySelector('video[playsinline]:not(#heroVideo)');
+                    if (nsVideo) {
+                        nsVideo.style.position = 'fixed';
+                        nsVideo.style.top = '-100px';
+                        nsVideo.style.left = '-100px';
+                        nsVideo.style.width = '1px';
+                        nsVideo.style.height = '1px';
+                        nsVideo.style.opacity = '0';
+                        nsVideo.style.pointerEvents = 'none';
+                    }
+                    // Força a volta para a posição original caso o browser tenha pulado
+                    if (Math.abs(window.scrollY - scrollPos) > 10) {
+                        window.scrollTo(0, scrollPos);
+                    }
+                }, 50);
+
                 console.log("✅ NoSleep.js Ativo");
             } catch (err) {
                 console.warn("❌ Falha NoSleep.js:", err);
