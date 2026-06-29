@@ -17,7 +17,7 @@
     --font-serif: 'Playfair Display', serif;
     --font-sans: 'Inter', sans-serif;
     
-    --transition: all 0.4s ease;
+    --transition: background 0.4s ease, opacity 0.4s ease, color 0.4s ease, transform 0.4s ease;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -79,12 +79,15 @@ section { padding: 100px 0; position: relative; scroll-margin-top: 70px; }
     background: rgba(5, 5, 5, 0.8);
     backdrop-filter: blur(15px);
     border-bottom: 1px solid rgba(184, 155, 94, 0.1);
-    transition: var(--transition);
+    /* FIX ESTRANHEZA: Removido 'all' da transição para evitar que mudanças de layout 
+       durante o scroll causem lag. Agora apenas o background suaviza. */
+    transition: background 0.3s ease, backdrop-filter 0.3s ease, padding 0.3s ease;
+    will-change: background, backdrop-filter;
 }
-.header.scrolled { padding: 5px 0; background: rgba(5, 5, 5, 0.95); }
-.header.scrolled .logo-img { height: 60px; }
+.header.scrolled { padding: 15px 0; background: rgba(5, 5, 5, 0.95); }
+.header.scrolled .logo-img { height: 50px; }
 .header-container { display: flex; justify-content: space-between; align-items: center; }
-.logo-img { height: 70px; width: auto; transition: var(--transition); }
+.logo-img { height: 60px; width: auto; transition: height 0.3s ease; }
 
 .nav ul { display: flex; list-style: none; gap: 25px; align-items: center; }
 .nav-link { 
