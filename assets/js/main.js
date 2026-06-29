@@ -35,19 +35,14 @@ document.addEventListener('DOMContentLoaded', () => {
  * que altera o valor de 100vh/100svh dinamicamente.
  */
 function fixViewportHeight() {
+    // Esta função foi simplificada para evitar saltos no mobile.
+    // Unidades modernas de CSS (svh) agora cuidam da altura do Hero.
     const fixHeight = () => {
         const vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty('--vh', `${vh}px`);
-        
-        // Trava a altura do Hero para evitar saltos durante o scroll
-        const hero = document.getElementById('inicio');
-        if (hero) {
-            hero.style.height = `${window.innerHeight}px`;
-        }
     };
 
     fixHeight();
-    // Atualiza apenas se a largura mudar (rotação de tela), não no scroll
     let lastWidth = window.innerWidth;
     window.addEventListener('resize', () => {
         if (window.innerWidth !== lastWidth) {
@@ -305,10 +300,10 @@ function initSmoothScroll() {
             
             const targetElement = document.querySelector(targetId);
             if (targetElement) {
-                const header = document.querySelector('.header');
-                // Usamos um valor fixo ou calculado no momento para evitar saltos se o header mudar durante o scroll
+                // Em mobile, o scroll suave nativo com behavior: 'smooth' às vezes conflita
+                // com a barra de endereços. Vamos garantir um cálculo limpo.
                 const headerHeight = 70; 
-                const targetPosition = targetElement.offsetTop - headerHeight;
+                const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight;
                 
                 window.scrollTo({
                     top: targetPosition,
