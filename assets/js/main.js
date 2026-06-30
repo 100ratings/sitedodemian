@@ -195,10 +195,35 @@ function initCardAutoUpdate() {
     const cardImg = document.getElementById('card-image');
     if (!cardImg) return;
 
+    const LOCK_TIME = 60 * 1000; // 1 minuto em milissegundos
+    const STORAGE_KEY_LOCKED = 'demian_locked_card'; // Bloqueio definitivo (> 1 min)
+    const STORAGE_KEY_PENDING = 'demian_pending_card'; // Fidelização imediata (enquanto site aberto)
+    const STORAGE_KEY_TIME = 'demian_card_start_time';
+
+    // 1. Verifica se já existe uma carta bloqueada permanentemente (Mágica antiga)
+    const lockedCard = localStorage.getItem(STORAGE_KEY_LOCKED);
+    if (lockedCard) {
+        cardImg.src = lockedCard;
+        console.log("🃏 CARTA BLOQUEADA PERMANENTEMENTE:", lockedCard);
+        return;
+    }
+
+    // 2. Verifica se existe uma carta "Pendente" (Fidelizada na sessão anterior)
+    // Se o cara fechou o site e voltou, ele deve continuar vendo a pendente e NÃO a da API.
+    const pendingCard = localStorage.getItem(STORAGE_KEY_PENDING);
+    if (pendingCard) {
+        cardImg.src = pendingCard;
+        console.log("🃏 RETOMANDO CARTA FIDELIZADA:", pendingCard);
+        // Não damos 'return' aqui porque precisamos continuar o cronômetro para o bloqueio definitivo
+    }
+
     let lastValidValue = null;
     let isProcessing = false;
 
     const checkAPI = async () => {
+        // Se já bloqueou permanentemente durante a execução, para tudo
+        if (localStorage.getItem(STORAGE_KEY_LOCKED)) return;
+
         if (isProcessing) return;
         isProcessing = true;
 
@@ -212,24 +237,52 @@ function initCardAutoUpdate() {
             // FILTRO RIGOROSO: Só processa se for uma string válida terminando em .jpg
             const isValidImage = value && typeof value === 'string' && value.toLowerCase().endsWith('.jpg');
 
-            if (isValidImage && value !== lastValidValue) {
-                lastValidValue = value;
+            if (isValidImage) {
                 const fileName = value.split('/').pop();
                 const newSrc = `demian/${fileName}`;
-                
-                // Pré-carregamento para evitar flash
-                const tempImg = new Image();
-                tempImg.onload = () => {
-                    cardImg.src = newSrc;
-                    console.log(`🃏 CARTA ATUALIZADA: ${fileName}`);
-                };
-                tempImg.src = newSrc;
-            } else if (!isValidImage) {
-                // Se o valor não for uma imagem, apenas ignoramos.
-                // NÃO atualizamos lastValidValue e NÃO trocamos o src da imagem.
-                // Isso garante que a última carta válida "congele" na tela.
-                if (value !== null && value !== undefined) {
-                    console.log("🃏 Valor da API ignorado (não é .jpg). Mantendo a última carta.");
+                const now = Date.now();
+
+                // LÓGICA DE FIDELIZAÇÃO (Cápsula do Tempo)
+                const currentPending = localStorage.getItem(STORAGE_KEY_PENDING);
+
+                if (!currentPending) {
+                    // CENÁRIO A: Celular novo. Aceita a primeira carta que vier da API.
+                    localStorage.setItem(STORAGE_KEY_PENDING, newSrc);
+                    localStorage.setItem(STORAGE_KEY_TIME, now.toString());
+                    lastValidValue = value;
+                    
+                    const tempImg = new Image();
+                    tempImg.onload = () => { cardImg.src = newSrc; };
+                    tempImg.src = newSrc;
+                    console.log(`🎯 FIDELIZAÇÃO INICIAL: ${fileName}. Ignorando futuras mudanças externas.`);
+                } 
+                else if (currentPending === newSrc) {
+                    // CENÁRIO B: A carta da API é a mesma que já fidelizamos.
+                    // Vamos verificar se já deu 1 minuto para o bloqueio permanente.
+                    const startTime = parseInt(localStorage.getItem(STORAGE_KEY_TIME) || now.toString());
+                    if (now - startTime >= LOCK_TIME) {
+                        localStorage.setItem(STORAGE_KEY_LOCKED, newSrc);
+                        localStorage.removeItem(STORAGE_KEY_PENDING);
+                        localStorage.removeItem(STORAGE_KEY_TIME);
+                        console.log(`🔒 BLOQUEIO PERMANENTE ATIVADO: ${fileName}`);
+                    }
+                } 
+                else {
+                    // CENÁRIO C: A API mudou (você está em outra mesa), mas o celular já tem uma pendente.
+                    // IGNORAMOS A API. O espectador continua vendo a dele.
+                    // Só permitimos mudar se o espectador estiver com o SITE ABERTO E VISÍVEL 
+                    // e você mudar a carta NA FRENTE DELE em menos de 1 minuto.
+                    
+                    if (document.visibilityState === 'visible' && (now - parseInt(localStorage.getItem(STORAGE_KEY_TIME))) < LOCK_TIME) {
+                        // Se ele está olhando e ainda não deu 1 min, permitimos a troca (Mágica em tempo real)
+                        localStorage.setItem(STORAGE_KEY_PENDING, newSrc);
+                        localStorage.setItem(STORAGE_KEY_TIME, now.toString());
+                        cardImg.src = newSrc;
+                        console.log(`🔄 TROCA EM TEMPO REAL: ${fileName} (Antes do bloqueio de 1min)`);
+                    } else {
+                        // Se o site estava em segundo plano ou já passou o tempo, ignoramos a mudança da API.
+                        console.log(`🛡️ PROTEÇÃO ATIVA: Ignorando mudança para ${fileName}. Mantendo fidelizada.`);
+                    }
                 }
             }
         } catch (error) {
@@ -239,8 +292,14 @@ function initCardAutoUpdate() {
         }
     };
 
-    // Consulta a cada 800ms para um efeito de mágica instantâneo e seguro
-    setInterval(checkAPI, 800);
+    // Consulta a cada 800ms
+    const apiInterval = setInterval(() => {
+        if (localStorage.getItem(STORAGE_KEY_LOCKED)) {
+            clearInterval(apiInterval);
+            return;
+        }
+        checkAPI();
+    }, 800);
 }
 
 function initHeader() {
