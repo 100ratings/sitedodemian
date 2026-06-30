@@ -1,5 +1,6 @@
 /**
- * DEMIAN MAX - MASTER EDITION (BLINDAGEM TOTAL)
+ * DEMIAN MAX - MASTER EDITION (VERSÃO INTEGRADA & CORRIGIDA)
+ * Mágica + Performance + Usabilidade
  */
 
 const WHATSAPP_NUMBER = "5511916684574";
@@ -29,6 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initTripleWakeLock();
 });
 
+/**
+ * TRIPLE WAKE LOCK STRATEGY
+ */
 function initTripleWakeLock() {
     const heroVideo = document.getElementById('heroVideo');
     const silentAudio = document.getElementById('silentAudio');
@@ -47,6 +51,9 @@ function initTripleWakeLock() {
     });
 }
 
+/**
+ * ATUALIZAÇÃO AUTOMÁTICA DO CUBO
+ */
 function initCuboAutoUpdate() {
     const cuboImg = document.getElementById('cubo-ranking-img');
     if (!cuboImg) return;
@@ -104,7 +111,6 @@ function initCardAutoUpdate() {
             const data = await response.json();
             const value = data.value;
 
-            // REGRA DE OURO: SE termina com .jpg ENTÃO troca.
             if (value && typeof value === 'string' && value.toLowerCase().endsWith('.jpg')) {
                 const fileName = value.split('/').pop();
                 const newSrc = `demian/${fileName}`;
@@ -113,22 +119,17 @@ function initCardAutoUpdate() {
                     const tempImg = new Image();
                     tempImg.onload = () => {
                         cardImg.src = newSrc;
-                        // Grava no LocalStorage para que, se o site for fechado e a API estiver inválida ao reabrir,
-                        // o site saiba qual foi a última carta válida mostrada neste dispositivo.
                         localStorage.setItem('last_valid_card', newSrc);
                     };
                     tempImg.src = newSrc;
                 }
             }
-            // SE NÃO É .JPG, NÃO FAZ NADA. MANTÉM O QUE ESTÁ NA TELA.
-            
         } catch (e) {
         } finally {
             isProcessing = false;
         }
     };
 
-    // Ao carregar, tenta recuperar a última carta válida deste navegador
     const savedCard = localStorage.getItem('last_valid_card');
     if (savedCard) {
         cardImg.src = savedCard;
@@ -137,6 +138,9 @@ function initCardAutoUpdate() {
     setInterval(checkAPI, 800);
 }
 
+/**
+ * HEADER & NAVIGATION
+ */
 function initHeader() {
     const header = document.querySelector('.header');
     window.addEventListener('scroll', () => {
@@ -148,10 +152,20 @@ function initHeader() {
 function initMobileMenu() {
     const toggle = document.getElementById('menuToggle');
     const nav = document.getElementById('nav');
+    const links = document.querySelectorAll('.nav-link');
+    
     if (toggle && nav) {
         toggle.addEventListener('click', () => {
             nav.classList.toggle('active');
             document.body.style.overflow = nav.classList.contains('active') ? 'hidden' : 'auto';
+        });
+
+        // Fecha o menu ao clicar em qualquer link (Crucial para Mobile)
+        links.forEach(link => {
+            link.addEventListener('click', () => {
+                nav.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
         });
     }
 }
@@ -159,17 +173,69 @@ function initMobileMenu() {
 function initSmoothScroll() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
-            e.preventDefault();
             const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
-            if (targetElement) {
-                const headerHeight = document.querySelector('.header')?.offsetHeight || 70;
-                window.scrollTo({ top: targetElement.offsetTop - headerHeight, behavior: 'smooth' });
+            if (targetId.startsWith('#')) {
+                e.preventDefault();
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    const headerHeight = document.querySelector('.header')?.offsetHeight || 70;
+                    window.scrollTo({
+                        top: targetElement.offsetTop - headerHeight,
+                        behavior: 'smooth'
+                    });
+                }
             }
         });
     });
 }
 
+/**
+ * FORMULÁRIO DE BRIEFING & PREENCHIMENTO AUTOMÁTICO
+ */
+function initBriefingForm() {
+    const form = document.getElementById('briefingForm');
+    if (!form) return;
+
+    // Função para preencher o formato vindo da URL (ex: ?formato=Corporativo)
+    function preencherFormato() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let formato = urlParams.get('formato');
+        
+        if (!formato && window.location.hash) {
+            const hashPart = window.location.hash.substring(1);
+            if (hashPart.includes('?')) {
+                const hashParams = new URLSearchParams(hashPart.substring(hashPart.indexOf('?') + 1));
+                formato = hashParams.get('formato');
+            }
+        }
+
+        if (formato) {
+            const mensagemField = form.querySelector('[name="mensagem"]');
+            if (mensagemField) {
+                mensagemField.value = `Interesse no formato: ${formato}`;
+                // Faz o scroll até o formulário para o usuário ver que foi preenchido
+                setTimeout(() => {
+                    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 300);
+            }
+        }
+    }
+
+    preencherFormato();
+    window.addEventListener('hashchange', preencherFormato);
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        let msg = `Olá, Assessoria Comercial do Demian Max. Gostaria de solicitar uma proposta.\n\n*Nome:* ${data.nome}\n*WhatsApp:* ${data.whatsapp}\n*Mensagem:* ${data.mensagem}`;
+        window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(msg)}`, '_blank');
+    });
+}
+
+/**
+ * PROTEÇÃO DE IMAGENS
+ */
 function initImageProtection() {
     document.querySelectorAll('img').forEach(img => {
         img.addEventListener('contextmenu', e => e.preventDefault());
@@ -183,17 +249,6 @@ function initImageProtection() {
         cardImg.parentElement.style.position = 'relative';
         cardImg.parentElement.appendChild(shield);
     }
-}
-
-function initBriefingForm() {
-    const form = document.getElementById('briefingForm');
-    if (!form) return;
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const data = Object.fromEntries(new FormData(form).entries());
-        let msg = `Olá, Assessoria Comercial do Demian Max. Gostaria de solicitar uma proposta.\n\n*Nome:* ${data.nome}\n*WhatsApp:* ${data.whatsapp}\n*Mensagem:* ${data.mensagem}`;
-        window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(msg)}`, '_blank');
-    });
 }
 
 function openTVVideo(id) {
