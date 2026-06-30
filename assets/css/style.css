@@ -17,28 +17,12 @@
     --font-serif: 'Playfair Display', serif;
     --font-sans: 'Inter', sans-serif;
     
-    --transition: background 0.4s ease, opacity 0.4s ease, color 0.4s ease, transform 0.4s ease;
+    --transition: all 0.4s ease;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html {
-    font-size: 16px;
-    /* FIX MOBILE SCROLL JUMP: evita o rubber-band/overscroll que causa puxão */
-    overscroll-behavior: none;
-}
-body {
-    background-color: var(--color-bg-deep);
-    color: var(--color-off-white);
-    font-family: var(--font-sans);
-    line-height: 1.6;
-    overflow-x: hidden;
-    /* FIX MOBILE SCROLL JUMP: scroll suave nativo no iOS e desativa overscroll */
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: none;
-    /* Informa ao browser que apenas scroll vertical será usado
-       Isso permite que o browser otimize o scroll sem esperar o JS */
-    touch-action: pan-y;
-}
+html { font-size: 16px; }
+body { background-color: var(--color-bg-deep); color: var(--color-off-white); font-family: var(--font-sans); line-height: 1.6; overflow-x: hidden; }
 
 /* TIPOGRAFIA */
 h1, h2, h3, h4 { font-family: var(--font-serif); color: var(--color-off-white); line-height: 1.2; }
@@ -79,15 +63,12 @@ section { padding: 100px 0; position: relative; scroll-margin-top: 70px; }
     background: rgba(5, 5, 5, 0.8);
     backdrop-filter: blur(15px);
     border-bottom: 1px solid rgba(184, 155, 94, 0.1);
-    /* FIX ESTRANHEZA: Removido 'all' da transição para evitar que mudanças de layout 
-       durante o scroll causem lag. Agora apenas o background suaviza. */
-    transition: background 0.3s ease, backdrop-filter 0.3s ease, padding 0.3s ease;
-    will-change: background, backdrop-filter;
+    transition: var(--transition);
 }
-.header.scrolled { padding: 15px 0; background: rgba(5, 5, 5, 0.95); }
-.header.scrolled .logo-img { height: 50px; }
+.header.scrolled { padding: 5px 0; background: rgba(5, 5, 5, 0.95); }
+.header.scrolled .logo-img { height: 60px; }
 .header-container { display: flex; justify-content: space-between; align-items: center; }
-.logo-img { height: 60px; width: auto; transition: height 0.3s ease; }
+.logo-img { height: 70px; width: auto; transition: var(--transition); }
 
 .nav ul { display: flex; list-style: none; gap: 25px; align-items: center; }
 .nav-link { 
@@ -103,18 +84,13 @@ section { padding: 100px 0; position: relative; scroll-margin-top: 70px; }
 
 /* HERO */
 .hero { 
-    height: 100vh;
-    height: 100svh;
+    height: 100vh; 
     min-height: 600px;
     display: flex; 
     align-items: center; 
     padding: 0; 
     position: relative;
     overflow: hidden;
-    /* FIX MOBILE SCROLL JUMP: isola o hero em seu próprio layer de compositing */
-    /* Isso evita que mudanças no hero causem repaint/reflow no restante da página */
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
 }
 .hero-bg { 
     position: absolute; 
@@ -325,10 +301,8 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
 
     /* HERO mobile */
     .hero { 
-        /* FIX MOBILE SCROLL JUMP: Usamos min-height para garantir visibilidade 
-           enquanto o JS não carrega. O JS travará a altura exata em pixels. */
-        min-height: 500px;
         height: 100svh;
+        min-height: 500px;
         align-items: flex-end;
     }
     .hero-content {

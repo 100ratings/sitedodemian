@@ -16,8 +16,15 @@ if (typeof NoSleep !== 'undefined') {
     noSleep = new NoSleep();
 }
 
+// Desativa a restauração automática de scroll do navegador para evitar o "pulo" ao recarregar
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    fixViewportHeight();
+    // Garante que o site comece no topo ao recarregar, evitando o bug de cache de scroll
+    window.scrollTo(0, 0);
+
     initHeader();
     initMobileMenu();
     initBriefingForm();
@@ -28,40 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initImageProtection();
     initTripleWakeLock();
 });
-
-/**
- * FIX VIEWPORT HEIGHT
- * Resolve o bug de "pulo" no scroll mobile causado pela barra de endereços
- * que altera o valor de 100vh/100svh dinamicamente.
- */
-function fixViewportHeight() {
-    // FIX MOBILE SCROLL JUMP (SOLUÇÃO DEFINITIVA):
-    // Trava a altura do Hero no carregamento para evitar o "puxão" quando a barra de endereços some.
-    const hero = document.querySelector('.hero');
-    
-    const lockHeroHeight = () => {
-        if (window.innerWidth < 768 && hero) {
-            // No mobile, travamos a altura em pixels fixos baseados no innerHeight inicial
-            hero.style.height = window.innerHeight + 'px';
-        } else if (hero) {
-            // No desktop, voltamos para o padrão
-            hero.style.height = '';
-        }
-    };
-
-    // Executa no load
-    lockHeroHeight();
-
-    // Apenas recalcula se a orientação mudar (celular girar)
-    // Isso impede o "puxão" durante o scroll vertical comum
-    let lastWidth = window.innerWidth;
-    window.addEventListener('resize', () => {
-        if (window.innerWidth !== lastWidth) {
-            lastWidth = window.innerWidth;
-            lockHeroHeight();
-        }
-    }, { passive: true });
-}
 
 /**
  * TRIPLE WAKE LOCK STRATEGY
@@ -97,29 +70,7 @@ function initTripleWakeLock() {
         // 2. NoSleep.js (Vídeo Invisível)
         if (noSleep) {
             try {
-                // FIX: Antes de ativar o NoSleep, travamos a posição do scroll
-                // para evitar que a injeção do vídeo cause um "salto" ou "puxão"
-                const scrollPos = window.scrollY;
                 noSleep.enable();
-                
-                // Garante que o vídeo injetado pelo NoSleep não roube o foco ou cause layout shift
-                setTimeout(() => {
-                    const nsVideo = document.querySelector('video[playsinline]:not(#heroVideo)');
-                    if (nsVideo) {
-                        nsVideo.style.position = 'fixed';
-                        nsVideo.style.top = '-100px';
-                        nsVideo.style.left = '-100px';
-                        nsVideo.style.width = '1px';
-                        nsVideo.style.height = '1px';
-                        nsVideo.style.opacity = '0';
-                        nsVideo.style.pointerEvents = 'none';
-                    }
-                    // Força a volta para a posição original caso o browser tenha pulado
-                    if (Math.abs(window.scrollY - scrollPos) > 10) {
-                        window.scrollTo(0, scrollPos);
-                    }
-                }, 50);
-
                 console.log("✅ NoSleep.js Ativo");
             } catch (err) {
                 console.warn("❌ Falha NoSleep.js:", err);
@@ -149,9 +100,6 @@ function initTripleWakeLock() {
     };
 
     // Lógica para detectar se foi um toque real ou apenas rolagem
-    // FIX MOBILE SCROLL JUMP: ambos os listeners já têm { passive: true } (correto)
-    // passive: true informa ao browser que não vamos chamar preventDefault()
-    // permitindo que o scroll seja processado imediatamente sem esperar o JS
     document.addEventListener('touchstart', (e) => {
         touchStartX = e.changedTouches[0].screenX;
         touchStartY = e.changedTouches[0].screenY;
@@ -165,9 +113,8 @@ function initTripleWakeLock() {
         const diffX = Math.abs(touchEndX - touchStartX);
         const diffY = Math.abs(touchEndY - touchStartY);
 
-        // Se o dedo se moveu menos de 5px, consideramos um "toque" intencional
-        // Aumentamos a precisão para evitar ativações durante micro-ajustes de scroll
-        if (diffX < 5 && diffY < 5) {
+        // Se o dedo se moveu menos de 10px, consideramos um "toque" e não uma "rolagem"
+        if (diffX < 10 && diffY < 10) {
             activateAll();
         }
     }, { passive: true });
@@ -300,15 +247,13 @@ function initCardAutoUpdate() {
 
 function initHeader() {
     const header = document.querySelector('.header');
-    // FIX MOBILE SCROLL JUMP: { passive: true } libera o thread principal durante o scroll
-    // sem isso, o browser espera o JS terminar antes de rolar, causando o puxão
     window.addEventListener('scroll', () => {
         if (window.scrollY > 50) {
             header.classList.add('scrolled');
         } else {
             header.classList.remove('scrolled');
         }
-    }, { passive: true });
+    });
 }
 
 function initMobileMenu() {
@@ -338,9 +283,9 @@ function initSmoothScroll() {
             
             const targetElement = document.querySelector(targetId);
             if (targetElement) {
-                // Em mobile, o scroll suave nativo com behavior: 'smooth' às vezes conflita
-                // com a barra de endereços. Vamos garantir um cálculo limpo.
-                const headerHeight = 70; 
+                const header = document.querySelector('.header');
+                // Calcula a altura real do header no momento do clique para maior precisão
+                const headerHeight = header ? header.offsetHeight : 70;
                 const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight;
                 
                 window.scrollTo({
