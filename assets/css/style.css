@@ -21,7 +21,7 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { font-size: 16px; }
+html { font-size: 16px; scroll-behavior: smooth; }
 body { background-color: var(--color-bg-deep); color: var(--color-off-white); font-family: var(--font-sans); line-height: 1.6; overflow-x: hidden; }
 
 /* TIPOGRAFIA */
@@ -430,4 +430,27 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--c
 
     /* Depoimentos: fonte menor */
     .grid-3 .card-premium p { font-size: 0.9rem; }
+}
+
+/* ============================================
+   CUSTOM SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--color-bg-deep);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--color-gold);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gold-light);
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-gold) var(--color-bg-deep);
 }
