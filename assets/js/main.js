@@ -195,7 +195,7 @@ function initCardAutoUpdate() {
     const cardImg = document.getElementById('card-image');
     if (!cardImg) return;
 
-    let lastValue = null;
+    let lastValidValue = null;
     let isProcessing = false;
 
     const checkAPI = async () => {
@@ -209,29 +209,27 @@ function initCardAutoUpdate() {
             const data = await response.json();
             const value = data.value;
 
-            // Só atualiza se o valor for diferente do último e contiver ".jpg"
-            if (value !== lastValue) {
-                lastValue = value;
+            // FILTRO RIGOROSO: Só processa se for uma string válida terminando em .jpg
+            const isValidImage = value && typeof value === 'string' && value.toLowerCase().endsWith('.jpg');
+
+            if (isValidImage && value !== lastValidValue) {
+                lastValidValue = value;
+                const fileName = value.split('/').pop();
+                const newSrc = `demian/${fileName}`;
                 
-                if (value && typeof value === 'string' && value.toLowerCase().endsWith('.jpg')) {
-                    const fileName = value.split('/').pop();
-                    const newSrc = `demian/${fileName}`;
-                    
-                    // Pré-carregamento para evitar flash
-                    const tempImg = new Image();
-                    tempImg.onload = () => {
-                        cardImg.src = newSrc;
-                        console.log(`🃏 Carta atualizada (sem flash): ${fileName}`);
-                    };
-                    tempImg.src = newSrc;
-                } else {
-                    const defaultSrc = 'demian/thumb.jpg';
-                    const tempImg = new Image();
-                    tempImg.onload = () => {
-                        cardImg.src = defaultSrc;
-                        console.log("🃏 Voltando para thumb padrão (sem flash)");
-                    };
-                    tempImg.src = defaultSrc;
+                // Pré-carregamento para evitar flash
+                const tempImg = new Image();
+                tempImg.onload = () => {
+                    cardImg.src = newSrc;
+                    console.log(`🃏 CARTA ATUALIZADA: ${fileName}`);
+                };
+                tempImg.src = newSrc;
+            } else if (!isValidImage) {
+                // Se o valor não for uma imagem, apenas ignoramos.
+                // NÃO atualizamos lastValidValue e NÃO trocamos o src da imagem.
+                // Isso garante que a última carta válida "congele" na tela.
+                if (value !== null && value !== undefined) {
+                    console.log("🃏 Valor da API ignorado (não é .jpg). Mantendo a última carta.");
                 }
             }
         } catch (error) {
