@@ -340,6 +340,41 @@ function initImageProtection() {
 function initBriefingForm() {
     const form = document.getElementById('briefingForm');
     if (!form) return;
+
+    // Função para preencher o formulário com o formato
+    function preencherFormato() {
+        // Captura o parâmetro de formato da URL (query string)
+        const urlParams = new URLSearchParams(window.location.search);
+        let formato = urlParams.get('formato');
+        
+        // Se não encontrou em query string, tenta capturar da hash
+        if (!formato && window.location.hash) {
+            const hashPart = window.location.hash.substring(1);
+            if (hashPart.includes('?')) {
+                const hashParams = new URLSearchParams(hashPart.substring(hashPart.indexOf('?') + 1));
+                formato = hashParams.get('formato');
+            }
+        }
+        
+        // Se houver um formato, preenche a mensagem
+        if (formato) {
+            const mensagemField = form.querySelector('[name="mensagem"]');
+            if (mensagemField) {
+                mensagemField.value = `Interesse no formato: ${formato}`;
+                // Scroll para o formulário
+                setTimeout(() => {
+                    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
+        }
+    }
+    
+    // Preenche ao carregar
+    preencherFormato();
+    
+    // Também monitora mudanças de hash (para quando o usuário clica no botão)
+    window.addEventListener('hashchange', preencherFormato);
+
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         const formData = new FormData(form);
