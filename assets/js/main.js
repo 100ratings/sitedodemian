@@ -195,8 +195,8 @@ function initCardAutoUpdate() {
     const cardImg = document.getElementById('card-image');
     if (!cardImg) return;
 
-    const LOCK_TIME = 120 * 1000; // 2 minuto em milissegundos
-    const STORAGE_KEY_LOCKED = 'demian_locked_card'; // Bloqueio definitivo (> 2 min)
+    const LOCK_TIME = 60 * 1000; // 1 minuto em milissegundos
+    const STORAGE_KEY_LOCKED = 'demian_locked_card'; // Bloqueio definitivo (> 1 min)
     const STORAGE_KEY_PENDING = 'demian_pending_card'; // Fidelização imediata (enquanto site aberto)
     const STORAGE_KEY_TIME = 'demian_card_start_time';
 
