@@ -8,6 +8,7 @@ const WHATSAPP_NUMBER = "5511916684574";
 const VIDEO_TV_1_URL = "https://youtu.be/Z0FNLVFJ7u8";
 const VIDEO_TV_2_URL = "https://youtu.be/_DMpFkXgq84?t=21";
 const VIDEO_TV_3_URL = "https://youtu.be/DjsEQ21bZ-M?t=24";
+const VIDEO_TV_4_URL = "https://youtu.be/NOFgXG445T8?t=61";
 
 // Instância Global do NoSleep
 let noSleep = null;
@@ -362,5 +363,6 @@ function openTVVideo(id) {
     if (id === 1) url = VIDEO_TV_1_URL;
     else if (id === 2) url = VIDEO_TV_2_URL;
     else if (id === 3) url = VIDEO_TV_3_URL;
+	else if (id === 4) url = VIDEO_TV_4_URL;
     window.open(url, '_blank');
 }
