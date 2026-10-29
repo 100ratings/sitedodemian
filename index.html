@@ -18,6 +18,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="assets/css/style.css">
+
+    <style>
+        /* Espaço entre os blocos de vídeos somente em telas menores */
+        @media (max-width: 991px) {
+            #midia .midia-grid-secondary {
+                margin-top: 40px;
+            }
+        }
+    </style>
     
     <!-- Cor da Barra de Status (Chrome, Firefox, Safari) -->
     <meta name="theme-color" content="#050505">
@@ -149,7 +158,7 @@
                             </svg>
                         </div>
                     </div>
-                    <p class="text-uppercase" style="margin: 5px 0 0; text-align: center; line-height: 1.2;">Participação em TV — Programa 01</p>
+                    <p class="text-uppercase" style="margin-top: 15px; text-align: center;">Participação em TV — Programa 01</p>
                 </div>
                 <!-- Programa 2 -->
                 <div class="midia-item" style="cursor: pointer;" onclick="openTVVideo(2)" data-video-id="_DMpFkXgq84?t=21">
@@ -161,11 +170,11 @@
                             </svg>
                         </div>
                     </div>
-                    <p class="text-uppercase" style="margin: 5px 0 0; text-align: center; line-height: 1.2;">Participação em TV — Programa 02</p>
+                    <p class="text-uppercase" style="margin-top: 15px; text-align: center;">Participação em TV — Programa 02</p>
                 </div>
             </div>
             
-            <div class="grid-2">
+            <div class="grid-2 midia-grid-secondary">
             <!-- Programa 3 centralizado -->
                 <div class="midia-item" style="cursor: pointer;" onclick="openTVVideo(3)" data-video-id="DjsEQ21bZ-M?t=24">
                     <div class="midia-thumb-wrap">
@@ -176,7 +185,7 @@
                             </svg>
                         </div>
                     </div>
-                    <p class="text-uppercase" style="margin: 5px 0 0; text-align: center; line-height: 1.2;">Participação em TV — Programa 03</p>
+                    <p class="text-uppercase" style="margin-top: 15px; text-align: center;">Participação em TV — Programa 03</p>
                 </div>
             <!-- Programa 4 centralizado -->
                 <div class="midia-item" style="cursor: pointer;" onclick="openTVVideo(4)" data-video-id="NOFgXG445T8?t=61">
@@ -188,7 +197,7 @@
                             </svg>
                         </div>
                     </div>
-                    <p class="text-uppercase" style="margin: 5px 0 0; text-align: center; line-height: 1.2;">Participação em TV — Programa 04</p>
+                    <p class="text-uppercase" style="margin-top: 15px; text-align: center;">Participação em TV — Programa 04</p>
                 </div>
             </div>
         </div>
