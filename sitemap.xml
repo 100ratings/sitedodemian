@@ -2,8 +2,17 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://demianmax.com/</loc>
-    <lastmod>2026-06-27</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://demianmax.com/experiencia-itinerante.html</loc>
+  </url>
+  <url>
+    <loc>https://demianmax.com/experiencia-corporativa.html</loc>
+  </url>
+  <url>
+    <loc>https://demianmax.com/experiencia-feiras.html</loc>
+  </url>
+  <url>
+    <loc>https://demianmax.com/experiencia-privada.html</loc>
   </url>
 </urlset>
